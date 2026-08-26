@@ -4,15 +4,25 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../core/api.service';
 import { Booking, eur } from '../shared/models';
+import { humanizeApiError, scrollToHoldAction } from '../shared/humanize-error';
 
 @Component({
   selector: 'app-session',
   imports: [RouterLink, FormsModule],
   template: `
     <div class="wrap">
-      @if (error()) { <p class="form-error">{{ error() }}</p> <a routerLink="/mis-partidas">Volver</a> }
-      @else if (!b()) { <p class="muted">Cargando partida…</p> }
-      @else {
+      @if (error()) {
+        <section class="state-screen" role="alert">
+          <h1>Partida no encontrada</h1>
+          <p class="lede">Ese enlace no corresponde a una reserva tuya.</p>
+          <a class="btn btn-primary" routerLink="/mis-partidas">Volver a mis partidas</a>
+        </section>
+      } @else if (!b()) {
+        <section class="state-screen">
+          <h1>Partida</h1>
+          <p class="muted">Cargando partida…</p>
+        </section>
+      } @else {
         <h1>{{ b()!.code }}</h1>
         <p>{{ b()!.status }} · {{ b()!.table?.name || b()!.cafeTable?.name }} · {{ b()!.slot?.startTime }}</p>
         @if (qr()) { <div class="qr" [innerHTML]="qr()"></div> }
@@ -33,7 +43,10 @@ import { Booking, eur } from '../shared/models';
           }
         }
         @if (b()!.status === 'confirmed' || b()!.status === 'pending') {
-          <button class="btn btn-secondary" type="button" (click)="cancel()">Cancelar</button>
+          <div id="hold-action">
+            <button class="btn btn-secondary" type="button" (click)="cancel()">Cancelar</button>
+            @if (actionError()) { <p class="form-error hold-error" role="alert">{{ actionError() }}</p> }
+          </div>
         }
       }
     </div>
@@ -46,6 +59,7 @@ export class SessionPageComponent implements OnInit {
   readonly b = signal<Booking | null>(null);
   readonly qr = signal<SafeHtml | null>(null);
   readonly error = signal('');
+  readonly actionError = signal('');
   readonly eur = eur;
 
   ngOnInit() {
@@ -73,7 +87,10 @@ export class SessionPageComponent implements OnInit {
     if (!b) return;
     this.api.cancel(b.id).subscribe({
       next: (nb) => this.apply(nb),
-      error: (err) => this.error.set(err?.error?.message || 'No se pudo cancelar'),
+      error: (err) => {
+        this.actionError.set(humanizeApiError(err, 'No se pudo cancelar.'));
+        scrollToHoldAction();
+      },
     });
   }
 }

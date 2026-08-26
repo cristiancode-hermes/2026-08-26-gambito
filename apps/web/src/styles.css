@@ -166,6 +166,9 @@ a.card:hover { text-decoration: none; color: inherit; transform: translateY(-3px
 .auth-demo { margin-top: 24px; max-width: 360px; padding: 12px; border: 1px dashed var(--color-border); color: var(--color-muted); font-size: 0.9rem; }
 .auth-demo code { font-family: var(--font-mono); color: var(--color-ink); display: inline-block; margin-right: 8px; }
 .form-error { color: var(--color-danger); }
+.hold-error { margin: 12px 0 0; font-weight: 600; }
+.state-screen { max-width: 36rem; padding: 24px 0 48px; }
+.state-screen .lede { margin-bottom: 20px; }
 
 .floor { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .floor-cell {

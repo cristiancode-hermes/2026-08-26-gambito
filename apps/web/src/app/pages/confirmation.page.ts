@@ -3,19 +3,33 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ApiService } from '../core/api.service';
 import { Booking, eur } from '../shared/models';
+import { humanizeApiError, scrollToHoldAction } from '../shared/humanize-error';
 
 @Component({
   selector: 'app-confirmation',
   imports: [RouterLink],
   template: `
     <div class="wrap">
-      <h1>Retención</h1>
-      @if (!booking()) { <p class="muted">Cargando…</p> }
-      @else {
+      @if (loadError()) {
+        <section class="state-screen" role="alert">
+          <h1>Reserva no encontrada</h1>
+          <p class="lede">El enlace no corresponde a una retención viva.</p>
+          <a class="btn btn-primary" routerLink="/mis-partidas">Mis partidas</a>
+        </section>
+      } @else if (!booking()) {
+        <section class="state-screen">
+          <h1>Retención</h1>
+          <p class="muted">Cargando…</p>
+        </section>
+      } @else {
+        <h1>Retención</h1>
         <p>Código <code>{{ booking()!.code }}</code> · {{ booking()!.status }}</p>
         @if (booking()!.status === 'pending' && remain()) {
-          <p>Expira en {{ remain() }}</p>
-          <button class="btn btn-primary" type="button" (click)="pay()">Confirmar y pagar</button>
+          <div id="hold-action">
+            <p>Expira en {{ remain() }}</p>
+            <button class="btn btn-primary" type="button" (click)="pay()">Confirmar y pagar</button>
+            @if (error()) { <p class="form-error hold-error" role="alert">{{ error() }}</p> }
+          </div>
         }
         @if (qr()) {
           <div class="qr" [innerHTML]="qr()"></div>
@@ -28,7 +42,9 @@ import { Booking, eur } from '../shared/models';
         </ul>
         <p><strong>Total {{ eur(booking()!.totalCents) }}</strong></p>
         <p><a routerLink="/mis-partidas">Mis partidas</a></p>
-        @if (error()) { <p class="form-error">{{ error() }}</p> }
+        @if (error() && booking()!.status !== 'pending') {
+          <p class="form-error hold-error" role="alert">{{ error() }}</p>
+        }
       }
     </div>
   `,
@@ -42,6 +58,7 @@ export class ConfirmationPageComponent implements OnInit, OnDestroy {
   readonly qr = signal<SafeHtml | null>(null);
   readonly remain = signal('');
   readonly error = signal('');
+  readonly loadError = signal(false);
   readonly eur = eur;
   private timer: ReturnType<typeof setInterval> | null = null;
 
@@ -49,7 +66,7 @@ export class ConfirmationPageComponent implements OnInit, OnDestroy {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.api.booking(id).subscribe({
       next: (b) => this.apply(b),
-      error: () => this.error.set('Reserva no encontrada'),
+      error: () => this.loadError.set(true),
     });
   }
 
@@ -89,7 +106,10 @@ export class ConfirmationPageComponent implements OnInit, OnDestroy {
         this.apply(res.booking);
         this.qr.set(this.sanitizer.bypassSecurityTrustHtml(res.qrSvg));
       },
-      error: (err) => this.error.set(err?.error?.message || 'No se pudo confirmar'),
+      error: (err) => {
+        this.error.set(humanizeApiError(err, 'No se pudo confirmar. Prueba de nuevo.'));
+        scrollToHoldAction();
+      },
     });
   }
 }
