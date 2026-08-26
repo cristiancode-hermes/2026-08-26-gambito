@@ -1,0 +1,7 @@
+QA testing complete for 2026-08-26
+Project: gambito
+Build: ✅ Angular 22 ng build + NestJS dist/main.js
+Tests: 18/18 jest + 21/21 endpoint smoke + 13/13 browser
+New tests: existing coverage adequate (18)
+Issues: 1 minor (staff TZ UTC→Madrid, fixed)
+Published: ✅ Caddy (gambito.proyectos.cristiancode.dev), ✅ Portfolio (es.ts+en.ts+pt.ts)

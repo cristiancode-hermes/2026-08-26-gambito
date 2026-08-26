@@ -52,7 +52,7 @@ export class StaffPageComponent implements OnInit {
   }
 
   setDay(status: string) {
-    const d = new Date().toISOString().slice(0, 10);
+    const d = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(new Date());
     this.api.patchDay(d, { status }).subscribe({ next: () => this.msg.set('Día actualizado a ' + status) });
   }
 }
