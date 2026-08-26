@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Tapete de café de juegos">
+  <rect width="800" height="1000" fill="#12352B"/>
+  <ellipse cx="400" cy="520" rx="280" ry="200" fill="#1A4A3C"/>
+  <ellipse cx="400" cy="520" rx="240" ry="160" fill="#245C4A"/>
+  <circle cx="300" cy="480" r="22" fill="#B42318"/>
+  <circle cx="360" cy="500" r="18" fill="#E8D5A3"/>
+  <circle cx="430" cy="470" r="20" fill="#F2F3F2"/>
+  <rect x="470" y="500" width="48" height="70" rx="4" fill="#9B1C1C"/>
+  <rect x="250" y="560" width="40" height="40" rx="4" fill="#F2F3F2"/>
+  <text x="80" y="120" fill="#F2F3F2" font-family="Georgia, serif" font-size="42">Gambito</text>
+  <text x="80" y="170" fill="#C5CDC8" font-family="sans-serif" font-size="22">Café de partidas</text>
+</svg>
